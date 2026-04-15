@@ -1,0 +1,37 @@
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Test and lint caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# Local environments
+.env
+.venv/
+venv/
+ENV/
+
+# Hydra and run outputs
+.hydra/
+outputs/
+
+# Tooling and editor noise
+.idea/
+.vscode/
+.DS_Store
+
+# Temporary files
+*.log
+*.tmp
+*~

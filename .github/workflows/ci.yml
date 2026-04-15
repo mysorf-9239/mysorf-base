@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.python-version }}"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install hatchling && pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Format check
+        run: ruff format --check .
+
+      - name: Type check
+        run: mypy src/mysorf_base tests
+
+      - name: Security scan
+        run: bandit -r src/mysorf_base -q
+
+      - name: Test
+        run: pytest -q
+        env:
+          MYSORF_BASE_WORKSPACE_ROOT: "${{ github.workspace }}"

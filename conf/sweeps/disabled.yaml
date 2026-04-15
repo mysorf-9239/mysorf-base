@@ -1,0 +1,6 @@
+backend: disabled
+strategy: grid
+n_trials: null
+seed: null
+fail_fast: false
+enabled: false

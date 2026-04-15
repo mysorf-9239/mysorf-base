@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install hatchling && pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Format check
+        run: ruff format --check .
+
+      - name: Type check
+        run: mypy src/mysorf_base tests
+
+      - name: Security scan
+        run: bandit -r src/mysorf_base -q
+
+      - name: Test
+        run: pytest -q
+        env:
+          MYSORF_BASE_WORKSPACE_ROOT: "${{ github.workspace }}"
+
+      - name: Build distributions
+        run: pip install hatch && hatch build
+
+      - name: Extract version
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Extract release notes from CHANGELOG
+        run: |
+          python - <<'PYEOF'
+          import re, pathlib
+          text = pathlib.Path("CHANGELOG.md").read_text()
+          # Match the first versioned section
+          m = re.search(
+              r"## \[\d+\.\d+\.\d+[^\]]*\].*?\n(.*?)(?=\n## \[|\Z)",
+              text, re.DOTALL
+          )
+          notes = m.group(1).strip() if m else ""
+          pathlib.Path("release_notes.md").write_text(notes)
+          PYEOF
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: "mysorf-base v${{ steps.version.outputs.VERSION }}"
+          body_path: release_notes.md
+          files: dist/*
+          prerelease: >-
+            ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}

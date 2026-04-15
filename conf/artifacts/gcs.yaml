@@ -1,0 +1,10 @@
+backend: gcs
+enabled: true
+# Unused by remote backends; retained for config compatibility with the shared schema.
+base_dir: null
+versioning_strategy: run_id
+bucket: null
+prefix: artifacts
+cache_dir: null
+region: null
+gcs_project: null
