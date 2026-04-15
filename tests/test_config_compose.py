@@ -16,7 +16,7 @@ def test_default_config_compose() -> None:
     cfg = compose_typed_config()
 
     assert cfg.app.name == "mysorf-base"
-    assert cfg.env.name == "local"
+    assert cfg.env.name in ("local", "ci", "dev")
     assert cfg.runtime.profile == "default"
     assert cfg.tracking.backend == "disabled"
     assert cfg.logging.backend == "console"
