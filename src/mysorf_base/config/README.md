@@ -51,16 +51,19 @@ mysorf_base/config/
 ```python
 @dataclass
 class AppConfig:
-    app: AppSection  # name, subsystem, version
-    env: EnvSection  # workspace, name, platform
-    paths: PathsSection  # repo_root, config_root, output_dir, artifacts_dir, cache_dir
+    app: AppSection       # name, subsystem, version
+    env: EnvSection       # workspace, name, platform
+    paths: PathsSection   # repo_root, config_root, output_dir, artifacts_dir, cache_dir
     runtime: RuntimeSection  # debug, seed, strict_config, profile
-    logging: dict  # owned by mysorf_base.logging
-    tracking: dict  # owned by mysorf_base.tracking
-    profiling: dict  # owned by mysorf_base.profiling
-    artifacts: dict  # owned by mysorf_base.artifacts
-    sweeps: dict  # owned by mysorf_base.sweeps
+    logging: LoggingConfig    # owned by mysorf_base.logging
+    tracking: TrackingConfig  # owned by mysorf_base.tracking
+    profiling: ProfilingConfig  # owned by mysorf_base.profiling
+    artifacts: ArtifactsConfig  # owned by mysorf_base.artifacts
+    sweeps: SweepsConfig    # owned by mysorf_base.sweeps
 ```
+
+All subsystem sections are typed `@dataclass` instances — access them as attributes,
+not dict keys: `cfg.tracking.backend`, `cfg.tracking.wandb.project`, `cfg.logging.level`.
 
 ### `RuntimeSection` defaults
 
@@ -132,9 +135,15 @@ wandb:
   api_key: ${oc.env:WANDB_API_KEY,null}
 ```
 
-Known secret paths masked by `redact_secrets()`:
+Secrets masked by `redact_secrets()`:
 
-- `tracking.wandb.api_key`
+Any dict key whose name (case-insensitive) matches one of the following at **any
+nesting depth** is replaced with `***REDACTED***`:
+
+`api_key` · `token` · `secret` · `password` · `credential`
+
+No hardcoded paths — new backends with sensitive fields are redacted automatically
+as long as their config keys follow this convention.
 
 ## Design Rules
 

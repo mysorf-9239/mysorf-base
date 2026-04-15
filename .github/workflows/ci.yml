@@ -40,3 +40,4 @@ jobs:
         run: pytest -q
         env:
           MYSORF_BASE_WORKSPACE_ROOT: "${{ github.workspace }}"
+          MYSORF_BASE_ENV: ci

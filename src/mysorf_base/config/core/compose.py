@@ -140,13 +140,22 @@ def compose_config(
         Composed :class:`DictConfig`.
     """
     load_env_files()
+    all_overrides = list(overrides or [])
+
+    # Allow MYSORF_BASE_ENV to select the env group (e.g. "ci", "dev") without
+    # having to pass overrides from test runners or shell wrappers.  A caller
+    # that already includes an "env=…" override takes precedence.
+    env_var = os.environ.get("MYSORF_BASE_ENV")
+    if env_var and not any(o.startswith("env=") or o.startswith("+env=") for o in all_overrides):
+        all_overrides = [f"env={env_var}"] + all_overrides
+
     global_hydra = GlobalHydra.instance()
     if global_hydra.is_initialized():
         global_hydra.clear()
     register_resolvers()
     register_config_store()
     with initialize_config_dir(version_base=None, config_dir=_config_dir()):
-        cfg = compose(config_name=config_name, overrides=list(overrides or []))
+        cfg = compose(config_name=config_name, overrides=all_overrides)
     return cfg
 
 

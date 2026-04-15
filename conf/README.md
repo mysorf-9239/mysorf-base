@@ -42,7 +42,7 @@ defaults:
 app:
   name: mysorf-base
   subsystem: config
-  version: 0.2.0
+  version: 0.1.0
 ```
 
 ## Group Reference
@@ -101,7 +101,19 @@ Tracking configuration groups passed to `mysorf_base.tracking`.
 | `disabled.yaml` | No-op            | None                                 |
 | `wandb.yaml`    | Weights & Biases | `pip install -e ".[tracking-wandb]"` |
 
-Credentials are read from environment variables:
+Credentials are read from environment variables. `mysorf_base.config` automatically
+loads `.env` files (from `MYSORF_BASE_WORKSPACE_ROOT/.env` or `cwd/.env`) before
+Hydra composition, so credentials can live in a `.env` file instead of being exported
+manually:
+
+```bash
+# .env  (never commit this file)
+WANDB_PROJECT=my-project
+WANDB_API_KEY=your-key
+WANDB_MODE=online
+```
+
+Or export directly:
 
 ```bash
 export WANDB_PROJECT=my-project

@@ -55,3 +55,28 @@ additional in-memory bytes copy by using `save_checkpoint_file(path, ...)`.
 - explicit `version` when provided
 - `epoch_{epoch:04d}` when `epoch` is present
 - `"latest"` otherwise
+
+## Events
+
+`CheckpointManager` emits structured events on the `EventBus` for both save and load:
+
+| Event | Payload keys | Emitted by |
+|-------|-------------|------------|
+| `checkpoint.saved` | `name`, `version`, `epoch`, `path` | `save_checkpoint()` / `save_checkpoint_file()` |
+| `checkpoint.loaded` | `name`, `version`, `epoch`, `path` | `load_checkpoint()` |
+
+Subscribe via `ctx.event_bus`:
+
+```python
+with bootstrap() as ctx:
+    manager = build_checkpoint_manager(ctx.artifact_manager, ctx.event_bus)
+
+    ctx.event_bus.subscribe(
+        "checkpoint.saved",
+        lambda e: ctx.logger.info(f"saved {e.payload['name']} → {e.payload['path']}"),
+    )
+    ctx.event_bus.subscribe(
+        "checkpoint.loaded",
+        lambda e: ctx.logger.info(f"loaded {e.payload['name']} v{e.payload['version']}"),
+    )
+```

@@ -33,13 +33,15 @@ mysorf_base/runtime/
 bootstrap(overrides)
     1. compose_typed_config(overrides)              → AppConfig
     2. sha256_config(cfg)                           → config_hash
-    3. build_logger(cfg.logging, name=cfg.app.name) → Logger
-    4. build_tracker(cfg.tracking)                  → Tracker
-    5. build_profiler(cfg.profiling)                → Profiler
-    6. build_artifact_manager(cfg.artifacts,
+    3. EventBus()                                   → event_bus
+    4. build_logger(cfg.logging, name=cfg.app.name) → Logger
+    5. build_tracker(cfg.tracking)                  → Tracker
+    6. build_profiler(cfg.profiling)                → Profiler
+    7. build_artifact_manager(cfg.artifacts,
                               cfg.paths,
                               tracker=tracker)      → ArtifactManager
-    → RuntimeContext(cfg, run_id, config_hash, logger, tracker, profiler, artifact_manager)
+    → RuntimeContext(cfg, run_id, config_hash,
+                     event_bus, logger, tracker, profiler, artifact_manager)
 ```
 
 ## Public API

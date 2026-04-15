@@ -120,7 +120,18 @@ tracker.start_run()
 pip install -e ".[tracking-wandb]"
 ```
 
-Credentials via environment variables:
+Credentials via environment variables or `.env` file. `mysorf_base.config`
+automatically loads `.env` files before Hydra composition:
+
+```bash
+# .env  (never commit this file)
+WANDB_PROJECT=my-project
+WANDB_ENTITY=my-team
+WANDB_API_KEY=your-key
+WANDB_MODE=online
+```
+
+Or export directly:
 
 ```bash
 export WANDB_PROJECT=my-project

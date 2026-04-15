@@ -29,16 +29,28 @@ requested.
 ### Secrets and Credentials
 
 - API keys and credentials must not be committed to `conf/` YAML files.
-- Use `oc.env` interpolation to read secrets from environment variables at
-  runtime.
-- The `redact_secrets()` function masks known secret paths before rendering
-  config output.
+- Use `oc.env` interpolation in YAML to read secrets at composition time:
+  `api_key: ${oc.env:WANDB_API_KEY,null}`
+- Store secrets in a `.env` file at the workspace root (loaded automatically
+  by `mysorf_base.config` before Hydra composition) or export them as OS
+  environment variables. Never commit `.env` to version control.
+- The `redact_secrets()` function recursively scans the entire config tree and
+  masks any key whose name (case-insensitive) matches a sensitive keyword.
 
-### Known Secret Paths
+### Secret Key Detection
 
-| Path | Masked by |
+`redact_secrets()` masks values at **any nesting depth** for keys matching:
+
+| Keyword | Example fields masked |
 |---|---|
-| `tracking.wandb.api_key` | `redact_secrets()` |
+| `api_key` | `tracking.wandb.api_key`, any future backend |
+| `token` | `auth.token`, `storage.access_token` |
+| `secret` | `oauth.client_secret` |
+| `password` | `db.password` |
+| `credential` | `cloud.credential` |
+
+No path-specific configuration is required — new backends are covered
+automatically as long as their sensitive fields follow this naming convention.
 
 ### Dependency Security
 
