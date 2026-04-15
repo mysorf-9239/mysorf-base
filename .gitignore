@@ -21,6 +21,7 @@ htmlcov/
 .venv/
 venv/
 ENV/
+!conf/env
 
 # Hydra and run outputs
 .hydra/
